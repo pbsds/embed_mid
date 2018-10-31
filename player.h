@@ -4,17 +4,16 @@
 
 #include <stdint.h>
 
-// {wait time in samples, channel index, target}
+// {wait time in samples, channel index, velocity, target}
 typedef struct {
 	uint32_t time;
-	uint16_t channel;
+	uint8_t channel; // this type might need to be expanded pending on requirements
+	uint8_t velocity;
 	uint16_t target;
 } SongEvent;
 
 #define SAMPLERATE 44100
-#define CHANNELS 16
-
-#define CHANNEL_AMPLITUDE 8
+#define CHANNELS 32
 
 void set_song(const SongEvent song[]);
 uint8_t get_sample();

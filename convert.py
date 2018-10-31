@@ -3,7 +3,7 @@ import mido, sys
 from collections import namedtuple
 
 
-SongEvent = namedtuple("NameTuple", "t, channel, target")
+SongEvent = namedtuple("NameTuple", "t, channel, velocity, target")
 # target is half of SAMPLERATE/note freq
 
 SAMPLERATE = 44100
@@ -30,32 +30,33 @@ def convert_mido_midi_to_song_events(mid):
 			
 		if msg.type == "note_on" and msg.velocity:
 			if msg.note in midi_state[msg.channel]:
-				channel = midi_state[msg.channel][msg.note]
+				channel, velocity = midi_state[msg.channel][msg.note]
 			else:
 				channel = 0
 				while channel in song_event_channel:
 					channel += 1
-				midi_state[msg.channel][msg.note] = channel
+				velocity = msg.velocity*16//128
+				midi_state[msg.channel][msg.note] = channel, velocity
 				song_event_channel.add(channel)
 			
 			pitch = midi_channel_pitchwheels[msg.channel]
-			yield SongEvent(int(t), channel, note2target(msg.note+pitch))
+			yield SongEvent(int(t), channel, velocity, note2target(msg.note+pitch))
 			t -= int(t)
 		elif msg.type == "note_off" \
 		  or msg.type == "note_on" and msg.velocity == 0:
 			try:
-				channel = midi_state[msg.channel][msg.note]
+				channel, velocity = midi_state[msg.channel][msg.note]
 			except KeyError:
 				continue
 			del midi_state[msg.channel][msg.note]
 			song_event_channel.remove(channel)
-			yield SongEvent(int(t), channel, 0)
+			yield SongEvent(int(t), channel, velocity, 0)
 			t -= int(t)
 		elif msg.type == "pitchwheel":
 			pitch = msg.pitch / (8192/2)
 			midi_channel_pitchwheels[msg.channel] = pitch
-			for note, channel in midi_state[msg.channel].items():
-				yield SongEvent(int(t), channel, note2target(note+pitch))
+			for note, (channel, velocity) in midi_state[msg.channel].items():
+				yield SongEvent(int(t), channel, velocity, note2target(note+pitch))
 				t -= int(t)
 			
 
@@ -66,7 +67,7 @@ def filter_song_events(events):
 	for event in events:
 		if event.t == 0:
 			if out and out[-1].channel == event.channel:
-				out[-1] = SongEvent(out[-1].t, event.channel, event.target)
+				out[-1] = SongEvent(out[-1].t, event.channel, event.velocity, event.target)
 			else:
 				out.append(event)
 		else:
@@ -83,12 +84,12 @@ def song_events_to_c(events, name):
 		"#include \"player.h\"",
 		f"// Requires minimum {max(map(SongEvent.channel.fget, events))+1} channels",
 		"",
-		"// {wait time in samples, channel index, target}",
+		"// {wait time in samples, channel index, velocity, target}",
 
 		f"static const SongEvent {name}[] = {{",
-		*(f"\t{{{t:>7}, {channel:>3}, {target:>4}}},"
-			for t, channel, target in events),
-		"\t{0, 0xffff, 0} // end of song",
+		*(f"\t{{{t:>7}, {channel:>3}, {velocity:>3}, {target:>4}}},"
+			for t, channel, velocity, target in events),
+		"\t{0, 0xff, 0, 0} // end of song",
 		"};",
 	])
 
