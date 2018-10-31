@@ -19,6 +19,7 @@ def convert_mido_midi_to_song_events(mid):
 		for channel in range(16)
 	}
 	song_event_channel = set() # taken or not
+	midi_channel_pitchwheels = [0]*16
 	
 	t = 0
 	for msg in mid:
@@ -37,7 +38,8 @@ def convert_mido_midi_to_song_events(mid):
 				midi_state[msg.channel][msg.note] = channel
 				song_event_channel.add(channel)
 			
-			yield SongEvent(int(t), channel, note2target(msg.note))
+			pitch = midi_channel_pitchwheels[msg.channel]
+			yield SongEvent(int(t), channel, note2target(msg.note+pitch))
 			t -= int(t)
 		elif msg.type == "note_off" \
 		  or msg.type == "note_on" and msg.velocity == 0:
@@ -47,10 +49,12 @@ def convert_mido_midi_to_song_events(mid):
 			yield SongEvent(int(t), channel, 0)
 			t -= int(t)
 		elif msg.type == "pitchwheel":
-			#msg.channel
-			#float(msg.pitch)/8192.
-			pass
-
+			pitch = msg.pitch / (8192/2)
+			midi_channel_pitchwheels[msg.channel] = pitch
+			for note, channel in midi_state[msg.channel].items():
+				yield SongEvent(int(t), channel, note2target(note+pitch))
+				t -= int(t)
+			
 
 def filter_song_events(events):
 	#yield from events
