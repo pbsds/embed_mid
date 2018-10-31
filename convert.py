@@ -88,7 +88,7 @@ def song_events_to_c(events, name):
 		f"static const SongEvent {name}[] = {{",
 		*(f"\t{{{t:>7}, {channel:>3}, {target:>4}}},"
 			for t, channel, target in events),
-		"\t{0, 999999, 0} // end of song",
+		"\t{0, 0xffff, 0} // end of song",
 		"};",
 	])
 

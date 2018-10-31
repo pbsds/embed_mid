@@ -18,11 +18,11 @@ void set_song(const SongEvent song[]) {
 uint8_t get_sample() {
 	// step
 	current_sample_counter++;
-	while (current_sample_counter >= current_song[current_pos][0]) {
+	while (current_sample_counter >= current_song[current_pos].time) {
 		current_sample_counter = 0;
 		
-		uint16_t channel = current_song[current_pos][1];
-		uint16_t target = current_song[current_pos][2];
+		uint16_t channel = current_song[current_pos].channel;
+		uint16_t target = current_song[current_pos].target;
 		if (channel > CHANNELS)
 			return 0; // TODO: make something smarter
 		current_state[channel][2] = target;

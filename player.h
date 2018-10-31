@@ -5,7 +5,11 @@
 #include <stdint.h>
 
 // {wait time in samples, channel index, target}
-typedef uint32_t SongEvent[3];
+typedef struct {
+	uint32_t time;
+	uint16_t channel;
+	uint16_t target;
+} SongEvent;
 
 #define SAMPLERATE 44100
 #define CHANNELS 16
