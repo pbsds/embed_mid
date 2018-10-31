@@ -6,10 +6,8 @@ int main(void) {
 	
 	set_song(my_song);
 	
-	uint8_t s;
 	while (1){
-		s = get_sample();
-		printf("%c", s);
+		printf("%c", get_sample());
 	}
 	
 	return 0;
