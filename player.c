@@ -23,6 +23,8 @@ uint8_t get_sample() {
 		
 		uint16_t channel = current_song[current_pos][1];
 		uint16_t target = current_song[current_pos][2];
+		if (channel > CHANNELS)
+			return 0; // TODO: make something smarter
 		current_state[channel][2] = target;
 		if (!target) {
 			current_sample -= current_state[channel][0];
