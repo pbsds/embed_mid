@@ -43,7 +43,10 @@ def convert_mido_midi_to_song_events(mid):
 			t -= int(t)
 		elif msg.type == "note_off" \
 		  or msg.type == "note_on" and msg.velocity == 0:
-			channel = midi_state[msg.channel][msg.note]
+			try:
+				channel = midi_state[msg.channel][msg.note]
+			except KeyError:
+				continue
 			del midi_state[msg.channel][msg.note]
 			song_event_channel.remove(channel)
 			yield SongEvent(int(t), channel, 0)
