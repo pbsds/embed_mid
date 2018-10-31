@@ -53,9 +53,12 @@ def convert_mido_midi_to_song_events(mid):
 
 
 def song_events_to_c(events, name):
+	events = list(events)
 	return "\n".join([
 		"#include <stdint.h>",
 		"#include \"player.h\"",
+		f"// Requires minimum {max(map(SongEvent.channel.fget, events))+1} channels",
+		"",
 		"// {wait time in samples, channel index, target}",
 
 		f"static const SongEvent {name}[] = {{",
