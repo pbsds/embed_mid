@@ -52,6 +52,23 @@ def convert_mido_midi_to_song_events(mid):
 			pass
 
 
+def filter_song_events(events):
+	#yield from events
+	#return
+	out = []
+	for event in events:
+		if event.t == 0:
+			if out and out[-1].channel == event.channel:
+				out[-1] = SongEvent(out[-1].t, event.channel, event.target)
+			else:
+				out.append(event)
+		else:
+			yield from out
+			out.clear()
+			out.append(event)
+	yield from out
+
+
 def song_events_to_c(events, name):
 	events = list(events)
 	return "\n".join([
@@ -71,4 +88,5 @@ def song_events_to_c(events, name):
 mid = mido.MidiFile(sys.argv[1])
 
 events = convert_mido_midi_to_song_events(mid)
+events = filter_song_events(events)
 print(song_events_to_c(events, "my_song"))
