@@ -10,11 +10,6 @@ int main(void) {
 	while (1){
 		s = get_sample();
 		printf("%c", s);
-		printf("%c", s);
-		printf("%c", s);
-		printf("%c", s);
-		printf("%c", s);
-		printf("%c", s);
 	}
 	
 	return 0;
