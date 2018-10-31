@@ -1,3 +1,7 @@
+#ifndef player_h_guard
+#define player_h_guard
+
+
 #include <stdint.h>
 
 // {wait time in samples, channel index, target}
@@ -10,3 +14,6 @@ typedef uint32_t SongEvent[3];
 
 void set_song(const SongEvent song[]);
 uint8_t get_sample();
+
+
+#endif /* end of include guard: player_h_guard */
