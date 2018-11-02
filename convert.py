@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import mido, sys
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 
 
 SongEvent = namedtuple("NameTuple", "t, channel, velocity, target")
@@ -75,9 +75,7 @@ def convert_mido_midi_to_song_events(mid):
 				t -= int(t)
 			
 
-def filter_song_events(events):
-	#yield from events
-	#return
+def filter_overlapping_song_events(events):
 	out = []
 	for event in events:
 		if event.t == 0:
@@ -91,6 +89,22 @@ def filter_song_events(events):
 			out.append(event)
 	yield from out
 
+def filter_redundant_song_events(events):
+	channels = defaultdict(lambda: [0, 0])# channel : [target, velocity]
+	out = []
+	t = 0
+	for event in events:
+		this = [int(event.target), int(event.velocity+0.5)]
+		if channels[event.channel] == this:
+			t += event.t # filter this event, but keeping time
+		else:
+			if t:
+				yield SongEvent(event.t+t, *event[1:])
+				t = 0
+			else:
+				yield event
+		channels[event.channel] = this
+	yield from out
 
 def song_events_to_c(events, name):
 	events = list(events)
@@ -102,14 +116,15 @@ def song_events_to_c(events, name):
 		"// {wait time in samples, channel index, velocity, target}",
 
 		f"static const SongEvent {name}[] = {{",
-		*(f"\t{{{t:>7}, {channel:>3}, {velocity:>3}, {target:>4}}},"
+		*(f"\t{{{t:>7}, {channel:>3}, {int(velocity+0.5):>3}, {target:>4}}},"
 			for t, channel, velocity, target in events),
-		"\t{0, 0xff, 0, 0} // end of song",
+		"\t{0, -1, 0, 0} // end of song",
 		"};",
 	])
 
 mid = mido.MidiFile(sys.argv[1])
 
 events = convert_mido_midi_to_song_events(mid)
-events = filter_song_events(events)
+events = filter_overlapping_song_events(events)
+events = filter_redundant_song_events(events)
 print(song_events_to_c(events, "my_song"))

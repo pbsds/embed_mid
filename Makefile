@@ -1,6 +1,6 @@
 
 build: 
-	gcc *.c -o program
+	gcc *.c -Ofast -o program
 
 .PHONY : run
 run: build

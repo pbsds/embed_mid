@@ -13,7 +13,7 @@ static const SongEvent* current_song;
 static struct State current_state[CHANNELS] = {};
 static uint16_t current_sample = 0;
 static uint32_t current_sample_counter = 0;
-static uint16_t current_pos = 0;
+static uint32_t current_pos = 0;
 
 void set_song(const SongEvent song[]) {
 	current_sample = 0;
