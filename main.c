@@ -6,7 +6,7 @@ int main(void) {
 	
 	set_song(my_song);
 	
-	while (1){
+	while (is_playing()){
 		printf("%c", get_sample());
 	}
 	

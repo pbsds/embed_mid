@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include "player.h"
 
 struct State {
@@ -14,12 +15,18 @@ static struct State current_state[CHANNELS] = {};
 static uint16_t current_sample = 0;
 static uint32_t current_sample_counter = 0;
 static uint32_t current_pos = 0;
+static bool current_playing = false;
 
 void set_song(const SongEvent song[]) {
 	current_sample = 0;
 	current_sample_counter = 0;
 	current_pos = 0;
+	current_playing = true;
 	current_song = song;
+}
+
+bool is_playing() {
+	return current_playing;
 }
 
 uint8_t get_sample() {
@@ -31,8 +38,10 @@ uint8_t get_sample() {
 		uint32_t channel = current_song[current_pos].channel;
 		uint8_t velocity = current_song[current_pos].velocity;
 		uint16_t target = current_song[current_pos].target;
-		if (channel > CHANNELS)
-			return 0; // TODO: make something smarter
+		if (channel > CHANNELS) {
+			current_playing = false;
+			return 0;
+		}
 		current_state[channel].target = target;
 		current_state[channel].velocity = velocity;
 		if (!target) {

@@ -3,6 +3,7 @@
 
 
 #include <stdint.h>
+#include <stdbool.h>
 
 // {wait time in samples, channel index, velocity, target}
 typedef struct {
@@ -17,6 +18,7 @@ typedef struct {
 #define CHANNELS 32
 
 void set_song(const SongEvent song[]);
+bool is_playing();
 uint8_t get_sample();
 
 
