@@ -9,6 +9,8 @@ SongEvent = namedtuple("NameTuple", "t, channel, velocity, target")
 SAMPLERATE = 44100
 TARGETSTEPS_PER_SAMPLE = 5
 VELOCITY_SCALE = 8
+LOWER_HIGHS = True
+#LOWER_HIGHS = False # comment out this
 
 def note2freq(n):
 	return 440*2**((n-57)/12)
@@ -40,6 +42,8 @@ def convert_mido_midi_to_song_events(mid):
 				while channel in song_event_channel:
 					channel += 1
 				velocity = msg.velocity * VELOCITY_SCALE / 128
+				if LOWER_HIGHS:
+					velocity *= (64-msg.note)/64 * 0.2  + 1
 				midi_state[msg.channel][msg.note] = channel, velocity
 				song_event_channel.add(channel)
 			
