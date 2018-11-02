@@ -46,10 +46,10 @@ uint8_t get_sample() {
 	
 	for (int i = 0; i < CHANNELS; i++) {
 		if (current_state[i].target){
-			current_state[i].counter++;
+			current_state[i].counter += TARGETSTEPS_PER_SAMPLE;
 		
 			if (current_state[i].counter >= current_state[i].target) {
-				current_state[i].counter = 0;
+				current_state[i].counter -= current_state[i].target;
 				if (current_state[i].current_sample) {
 					current_sample -= current_state[i].current_sample;
 					current_state[i].current_sample = 0;
