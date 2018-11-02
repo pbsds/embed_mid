@@ -8,6 +8,7 @@ SongEvent = namedtuple("NameTuple", "t, channel, velocity, target")
 
 SAMPLERATE = 44100
 TARGETSTEPS_PER_SAMPLE = 5
+VELOCITY_SCALE = 8
 
 def note2freq(n):
 	return 440*2**((n-57)/12)
@@ -21,8 +22,10 @@ def convert_mido_midi_to_song_events(mid):
 	}
 	song_event_channel = set() # taken or not
 	midi_channel_pitchwheels = [0]*16
+	midi_channel_volume = [1.0]*16
 	
 	t = 0
+	update_channel = False
 	for msg in mid:
 		if msg.time > 0:
 			t += msg.time*SAMPLERATE
@@ -36,12 +39,13 @@ def convert_mido_midi_to_song_events(mid):
 				channel = 0
 				while channel in song_event_channel:
 					channel += 1
-				velocity = msg.velocity*16//128
+				velocity = msg.velocity * VELOCITY_SCALE / 128
 				midi_state[msg.channel][msg.note] = channel, velocity
 				song_event_channel.add(channel)
 			
 			pitch = midi_channel_pitchwheels[msg.channel]
-			yield SongEvent(int(t), channel, velocity, note2target(msg.note+pitch))
+			volume = midi_channel_volume[msg.channel]
+			yield SongEvent(int(t), channel, volume*velocity, note2target(msg.note+pitch))
 			t -= int(t)
 		elif msg.type == "note_off" \
 		  or msg.type == "note_on" and msg.velocity == 0:
@@ -53,11 +57,21 @@ def convert_mido_midi_to_song_events(mid):
 			song_event_channel.remove(channel)
 			yield SongEvent(int(t), channel, velocity, 0)
 			t -= int(t)
+		elif msg.type == "control_change":
+			if msg.control == 7:# channel colume
+				midi_channel_volume[msg.channel] = msg.value / 127
+				update_channel = True
 		elif msg.type == "pitchwheel":
 			pitch = msg.pitch / (8192/2)
 			midi_channel_pitchwheels[msg.channel] = pitch
+			update_channel = True
+			
+		if update_channel:
+			update_channel = False
+			pitch = midi_channel_pitchwheels[msg.channel]
+			volume = midi_channel_volume[msg.channel]
 			for note, (channel, velocity) in midi_state[msg.channel].items():
-				yield SongEvent(int(t), channel, velocity, note2target(note+pitch))
+				yield SongEvent(int(t), channel, volume*velocity, note2target(note+pitch))
 				t -= int(t)
 			
 
