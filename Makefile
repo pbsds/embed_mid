@@ -1,6 +1,6 @@
 
 build: 
-	gcc *.c -Ofast -o program
+	gcc *.c -Ofast -o program -Werror=overflow
 
 .PHONY : run
 run: build

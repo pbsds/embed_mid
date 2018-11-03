@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import mido, sys
 from collections import namedtuple, defaultdict
+from functools import partial
+err = partial(print, file=sys.stderr)
 
 
 SongEvent = namedtuple("NameTuple", "t, channel, velocity, target")
@@ -112,13 +114,20 @@ def filter_redundant_song_events(events):
 
 def song_events_to_c(events, name):
 	events = list(events)
+	nchannels = max(map(SongEvent.channel.fget, events))+1
+	err(f"This song requires minimum {nchannels} channels")
+	err(f"If you get a -Werror=overflow error, then change the type of SongEvent.channel in player.h")
+	err()
 	return "\n".join([
 		"#include <stdint.h>",
 		"#include \"player.h\"",
-		f"// Requires minimum {max(map(SongEvent.channel.fget, events))+1} channels",
+		"",
+		f"#if (CHANNELS < {nchannels})",
+		f"#error \"Not enough CHANNELS, defined in player.h. Minimum {nchannels} required!\"",
+		"#endif",
 		"",
 		"// {wait time in samples, channel index, velocity, target}",
-
+		
 		f"static const SongEvent {name}[] = {{",
 		*(f"\t{{{t:>7}, {channel:>3}, {int(velocity+0.5):>3}, {target:>4}}},"
 			for t, channel, velocity, target in events),
