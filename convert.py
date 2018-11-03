@@ -6,7 +6,8 @@ err = partial(print, file=sys.stderr)
 
 
 SongEvent = namedtuple("NameTuple", "t, channel, velocity, target")
-# target is half of SAMPLERATE/note freq
+# target is half of the wavelength times TARGETSTEPS_PER_SAMPLE
+# the player flips the square wave after overflowing the target
 
 SAMPLERATE = 44100
 TARGETSTEPS_PER_SAMPLE = 5
@@ -20,7 +21,7 @@ def note2target(n):
 	return int(SAMPLERATE / ( note2freq(n) * 2 ) * TARGETSTEPS_PER_SAMPLE + 0.698)
 
 def convert_mido_midi_to_song_events(mid):
-	midi_state = { # midi_state_2_song_event_channel
+	midi_state = {
 		channel : {}
 		for channel in range(16)
 	}
