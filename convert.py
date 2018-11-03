@@ -38,16 +38,18 @@ def convert_mido_midi_to_song_events(mid):
 			
 		if msg.type == "note_on" and msg.velocity:
 			if msg.note in midi_state[msg.channel]:
-				channel, velocity = midi_state[msg.channel][msg.note]
+				channel, _ = midi_state[msg.channel][msg.note]
 			else:
 				channel = 0
 				while channel in song_event_channel:
 					channel += 1
-				velocity = msg.velocity * VELOCITY_SCALE / 128
-				if LOWER_HIGHS:
-					velocity *= (64-msg.note)/64 * 0.2  + 1
-				midi_state[msg.channel][msg.note] = channel, velocity
 				song_event_channel.add(channel)
+
+			velocity = msg.velocity * VELOCITY_SCALE / 128
+			if LOWER_HIGHS:
+				velocity *= (64-msg.note)/64 * 0.2  + 1
+
+			midi_state[msg.channel][msg.note] = channel, velocity
 			
 			pitch = midi_channel_pitchwheels[msg.channel]
 			volume = midi_channel_volume[msg.channel]
@@ -135,9 +137,16 @@ def song_events_to_c(events, name):
 		"};",
 	])
 
-mid = mido.MidiFile(sys.argv[1])
 
-events = convert_mido_midi_to_song_events(mid)
-events = filter_overlapping_song_events(events)
-events = filter_redundant_song_events(events)
-print(song_events_to_c(events, "my_song"))
+if __name__ == "__main__":
+	if not len(sys.argv) >= 2:
+		print("Usage:")
+		print(f"\t{sys.argv[0]} MIDIFILE > songs.h && make [run]")
+		exit()
+	
+	mid = mido.MidiFile(sys.argv[1])
+	
+	events = convert_mido_midi_to_song_events(mid)
+	events = filter_overlapping_song_events(events)
+	events = filter_redundant_song_events(events)
+	print(song_events_to_c(events, "my_song"))
