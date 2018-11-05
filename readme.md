@@ -19,10 +19,13 @@ It currently generates uint8 samples, this should be trivial to change.
 
 The player uses a simplified song format. You must convert your MIDI files first.
 
-    ./convert.py MIDIFILE > songs.h && make [run]
+    ./convert.py MIDIFILE > songs.h && make [run/wav/mp3]
 
 The reference implementation in `main.c` simply writes the audio samples to stdout.
 Ensure `aplay` is installed to be able to hear the output if you `make run` it.
+
+The Makefile also have the targets `wav` and `mp3` which will create a `out.filetype`.
+These require `sox` and `lame` to be installed respectively.
 
 
 ## Lisence
