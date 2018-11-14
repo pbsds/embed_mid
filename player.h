@@ -16,6 +16,7 @@ typedef struct {
 #define SAMPLERATE 44100
 #define TARGETSTEPS_PER_SAMPLE 5
 #define CHANNELS 32
+#define LOOP_SONG false /* do NOT enable this when making a wav/mp3! */
 
 void set_song(const SongEvent song[]);
 bool is_playing();

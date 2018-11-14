@@ -39,8 +39,13 @@ uint8_t get_sample() {
 		uint8_t velocity = current_song[current_pos].velocity;
 		uint16_t target = current_song[current_pos].target;
 		if (channel > CHANNELS) {
-			current_playing = false;
-			return 0;
+			if (LOOP_SONG) {
+				current_pos = 0;
+				continue;
+			} else {
+				current_playing = false;
+				return 0;
+			}
 		}
 		current_state[channel].target = target;
 		current_state[channel].velocity = velocity;
