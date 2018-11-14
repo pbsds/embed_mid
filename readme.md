@@ -11,7 +11,7 @@ It currently generates uint8 samples, this should be trivial to change.
 
 * `player.c` and `player.h` has no dependencies.
 * `convert.py` requires `mido` to read MIDI files:
-  
+
   `pip3 install --user mido`
 
 
@@ -26,6 +26,11 @@ Ensure `aplay` is installed to be able to hear the output if you `make run` it.
 
 The Makefile also have the targets `wav` and `mp3` which will create a `out.filetype`.
 These require `sox` and `lame` to be installed respectively.
+
+
+# TODOs
+
+* Add support for playing multiple songs? (non-global player state)
 
 
 ## License
