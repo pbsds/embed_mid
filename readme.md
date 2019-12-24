@@ -10,9 +10,9 @@ It currently generates uint8 samples, this should be trivial to change.
 ## Requirements
 
 * `player.c` and `player.h` has no dependencies.
-* `convert.py` requires `remo` to read MIDI files:
+* `convert.py` requires `mido` to read MIDI files:
   
-  `pip3 install --user remo`
+  `pip3 install --user mido`
 
 
 ## Running it as is.
@@ -28,6 +28,6 @@ The Makefile also have the targets `wav` and `mp3` which will create a `out.file
 These require `sox` and `lame` to be installed respectively.
 
 
-## Lisence
+## License
 
-MIT, do whatever with it.
+MIT, do whatever
