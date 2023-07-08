@@ -1,5 +1,5 @@
 
-build: 
+build:
 	gcc *.c -Ofast -o program -Werror=overflow
 
 .PHONY : run

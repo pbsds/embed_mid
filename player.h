@@ -8,7 +8,7 @@
 // {wait time in samples, channel index, velocity, target}
 typedef struct {
 	uint32_t time;
-	uint8_t channel; // this type might need to be expanded pending on requirements
+	uint16_t channel; // this type might need to be expanded pending on requirements
 	uint8_t velocity;
 	uint16_t target; // n samples per half wavelength times TARGETSTEPS_PER_SAMPLE
 } SongEvent;

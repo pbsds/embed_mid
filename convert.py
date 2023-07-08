@@ -12,6 +12,7 @@ SongEvent = namedtuple("NameTuple", "t, channel, velocity, target")
 SAMPLERATE = 44100
 TARGETSTEPS_PER_SAMPLE = 5
 VELOCITY_SCALE = 8
+VELOCITY_SCALE = 22
 LOWER_HIGHS = True
 #LOWER_HIGHS = False # comment out this
 
@@ -117,7 +118,7 @@ def filter_redundant_song_events(events):
 
 def song_events_to_c(events, name):
 	events = list(events)
-	nchannels = max(map(SongEvent.channel.fget, events))+1
+	nchannels = max(i.channel for i in events) + 1
 	err(f"This song requires minimum {nchannels} channels")
 	err(f"If you get a -Werror=overflow error, then change the type of SongEvent.channel in player.h")
 	err()
